@@ -18,7 +18,7 @@ Basic usage:
     print(result.download_link)
 """
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = 'tfLink'
 __license__ = 'MIT'
 
