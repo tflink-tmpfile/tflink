@@ -1,4 +1,4 @@
-.PHONY: help install install-dev test test-cov clean build publish publish-test quick-test format lint
+.PHONY: help install install-dev test test-cov clean build publish publish-test quick-test format lint version-patch version-minor version-major
 
 help:
 	@echo "tflink - Makefile Commands"
@@ -15,6 +15,12 @@ help:
 	@echo "  make build          - Build distribution packages"
 	@echo "  make publish-test   - Publish to TestPyPI"
 	@echo "  make publish        - Publish to PyPI"
+	@echo ""
+	@echo "Version management:"
+	@echo "  make version-patch  - Bump patch version (0.1.0 -> 0.1.1)"
+	@echo "  make version-minor  - Bump minor version (0.1.0 -> 0.2.0)"
+	@echo "  make version-major  - Bump major version (0.1.0 -> 1.0.0)"
+	@echo "  make release        - Complete release process (push tags + create release)"
 
 install:
 	pip install -e .
@@ -58,3 +64,31 @@ publish-test: build
 publish: build
 	twine check dist/*
 	twine upload dist/*
+
+# Version management
+version-patch:
+	python bump_version.py patch
+
+version-minor:
+	python bump_version.py minor
+
+version-major:
+	python bump_version.py major
+
+release:
+	@echo "🚀 Starting release process..."
+	@echo ""
+	@git push
+	@echo "✓ Code pushed"
+	@TAG=$$(git describe --tags --abbrev=0 2>/dev/null || echo "none"); \
+	if [ "$$TAG" != "none" ]; then \
+		echo "✓ Pushing tag $$TAG..."; \
+		git push origin $$TAG; \
+		echo ""; \
+		echo "✅ Release ready!"; \
+		echo ""; \
+		echo "📋 Next: Create GitHub Release at:"; \
+		echo "   https://github.com/tflink-tmpfile/tflink/releases/new?tag=$$TAG"; \
+	else \
+		echo "❌ No tag found. Run 'make version-patch/minor/major' first"; \
+	fi

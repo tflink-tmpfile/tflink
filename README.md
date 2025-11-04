@@ -1,6 +1,14 @@
 # tflink
 
+[![PyPI version](https://badge.fury.io/py/tflink.svg)](https://badge.fury.io/py/tflink)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tflink)](https://pypi.org/project/tflink/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/tflink)](https://pypi.org/project/tflink/)
+[![GitHub](https://img.shields.io/github/license/tflink-tmpfile/tflink)](https://github.com/tflink-tmpfile/tflink/blob/main/LICENSE)
+[![GitHub issues](https://img.shields.io/github/issues/tflink-tmpfile/tflink)](https://github.com/tflink-tmpfile/tflink/issues)
+
 A simple and easy-to-use Python library for uploading files to [tmpfile.link](https://tmpfile.link) and retrieving download links.
+
+**📦 [View on PyPI](https://pypi.org/project/tflink/) | 📖 [Documentation](https://github.com/tflink-tmpfile/tflink#readme) | 🐛 [Report Issues](https://github.com/tflink-tmpfile/tflink/issues)**
 
 ## Features
 
