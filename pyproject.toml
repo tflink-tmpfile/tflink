@@ -49,9 +49,10 @@ dev = [
 
 [project.urls]
 Homepage = "https://github.com/tflink-tmpfile/tflink"
-Documentation = "https://github.com/tflink-tmpfile/tflink#readme"
+Documentation = "https://github.com/tflink-tmpfile/tflink/tree/main/docs"
 Repository = "https://github.com/tflink-tmpfile/tflink.git"
 Issues = "https://github.com/tflink-tmpfile/tflink/issues"
+Changelog = "https://github.com/tflink-tmpfile/tflink/blob/main/CHANGELOG.md"
 
 [tool.setuptools.packages.find]
 include = ["tflink*"]
@@ -78,7 +79,7 @@ exclude = '''
 '''
 
 [tool.mypy]
-python_version = "0.1.1"
+python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = false
