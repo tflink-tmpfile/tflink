@@ -8,7 +8,7 @@
 
 A simple and easy-to-use Python library for uploading files to [tmpfile.link](https://tmpfile.link) and retrieving download links.
 
-**📦 [View on PyPI](https://pypi.org/project/tflink/) | 📖 [Documentation](docs/) | 🐛 [Report Issues](https://github.com/tflink-tmpfile/tflink/issues)**
+**📦 [View on PyPI](https://pypi.org/project/tflink/) | 📖 [Documentation](https://github.com/tflink-tmpfile/tflink/tree/main/docs) | 🐛 [Report Issues](https://github.com/tflink-tmpfile/tflink/issues)**
 
 ## Features
 
@@ -109,9 +109,9 @@ Both links point to the same file. Use `download_link` for most cases.
 
 ## Documentation
 
-- 📖 **[Getting Started Guide](docs/user-guide/getting-started.md)** - Detailed tutorials and examples
-- 📚 **[API Reference](docs/user-guide/api-reference.md)** - Complete API documentation
-- 🛠️ **[Developer Guide](docs/developer-guide/)** - For contributors and maintainers
+- 📖 **[Getting Started Guide](https://github.com/tflink-tmpfile/tflink/blob/main/docs/user-guide/getting-started.md)** - Detailed tutorials and examples
+- 📚 **[API Reference](https://github.com/tflink-tmpfile/tflink/blob/main/docs/user-guide/api-reference.md)** - Complete API documentation
+- 🛠️ **[Developer Guide](https://github.com/tflink-tmpfile/tflink/tree/main/docs/developer-guide)** - For contributors and maintainers
 
 ## API Overview
 
@@ -189,17 +189,17 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history and changes.
+See [CHANGELOG.md](https://github.com/tflink-tmpfile/tflink/blob/main/CHANGELOG.md) for version history and changes.
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](https://github.com/tflink-tmpfile/tflink/blob/main/LICENSE) file for details.
 
 ## Links
 
 - **PyPI:** https://pypi.org/project/tflink/
 - **GitHub:** https://github.com/tflink-tmpfile/tflink
-- **Documentation:** [docs/](docs/)
+- **Documentation:** https://github.com/tflink-tmpfile/tflink/tree/main/docs
 - **tmpfile.link:** https://tmpfile.link
 - **Issues:** https://github.com/tflink-tmpfile/tflink/issues
 - **Email:** pypi@tmpfile.link
@@ -208,7 +208,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - 📧 Email: pypi@tmpfile.link
 - 🐛 Issues: [GitHub Issues](https://github.com/tflink-tmpfile/tflink/issues)
-- 📖 Docs: [Documentation](docs/)
+- 📖 Docs: [Documentation](https://github.com/tflink-tmpfile/tflink/tree/main/docs)
 
 ---
 
