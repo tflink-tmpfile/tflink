@@ -42,11 +42,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Client-side file size validation before upload (default: 100MB)
+- Configurable `max_file_size` parameter in `TFLinkClient`
+- Files exceeding size limit are rejected before upload to save time and bandwidth
+- Comprehensive error messages showing file size and limit
+
 ### Changed
 - Reorganized documentation into docs/ directory structure
 - Created comprehensive documentation index
 - Added detailed API reference
 - Improved release workflow documentation
+- Updated all documentation to include file size limit information
+
+### Fixed
+- Files larger than 100MB are now rejected immediately instead of after upload attempt
 
 ---
 

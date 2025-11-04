@@ -122,13 +122,19 @@ TFLinkClient(
     user_id: str | None = None,
     auth_token: str | None = None,
     base_url: str = "https://tmpfile.link",
-    timeout: int = 300
+    timeout: int = 300,
+    max_file_size: int = 104857600  # 100MB default
 )
 ```
 
 **Methods:**
-- `upload(file_path, filename=None)` - Upload a file
+- `upload(file_path, filename=None)` - Upload a file (max 100MB by default)
 - `is_authenticated()` - Check authentication status
+
+**File Size Limit:**
+- Default: 100MB (104,857,600 bytes)
+- Files exceeding the limit are rejected **before upload**
+- Saves time and bandwidth
 
 ### UploadResult
 

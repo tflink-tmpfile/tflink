@@ -105,6 +105,7 @@ except FileNotFoundError:
     print("File not found!")
 
 except UploadError as e:
+    # Catches file too large, server errors, etc.
     print(f"Upload failed: {e}")
 
 except NetworkError as e:
@@ -112,6 +113,26 @@ except NetworkError as e:
 
 except TFLinkError as e:
     print(f"Error: {e}")
+```
+
+### Handle File Size Errors
+
+```python
+from tflink import TFLinkClient
+from tflink.exceptions import UploadError
+
+client = TFLinkClient()
+
+try:
+    result = client.upload('large_file.zip')
+    print(f"Success: {result.download_link}")
+
+except UploadError as e:
+    if "too large" in str(e).lower():
+        print(f"File exceeds size limit: {e}")
+        # Example: File too large: 150.00MB. Maximum allowed: 100MB
+    else:
+        print(f"Upload failed: {e}")
 ```
 
 ## Understanding Download Links
@@ -210,9 +231,17 @@ client = TFLinkClient(
     user_id='YOUR_USER_ID',        # Optional: For authenticated uploads
     auth_token='YOUR_AUTH_TOKEN',  # Optional: For authenticated uploads
     base_url='https://tmpfile.link',  # Optional: Custom API URL
-    timeout=300                     # Optional: Request timeout in seconds
+    timeout=300,                    # Optional: Request timeout in seconds (default: 300)
+    max_file_size=100 * 1024 * 1024  # Optional: Max file size in bytes (default: 100MB)
 )
 ```
+
+**File Size Limits:**
+
+- Default maximum file size: **100MB** (104,857,600 bytes)
+- tmpfile.link only accepts files up to 100MB
+- Files exceeding the limit will be rejected **before upload** to save time and bandwidth
+- You can set a custom limit with `max_file_size` parameter (e.g., for stricter limits)
 
 ### Check Authentication Status
 
@@ -292,7 +321,9 @@ for item in links:
 ## Tips
 
 1. **Anonymous uploads expire after 7 days** - Use authenticated uploads for permanent storage
-2. **Check file size limits** - tmpfile.link may have upload size limits
-3. **Handle errors gracefully** - Always use try-except blocks
-4. **Use Path objects** - More reliable than string paths
-5. **Test with small files first** - Verify everything works before uploading large files
+2. **File size limit is 100MB** - Files exceeding this will be rejected before upload
+3. **Client-side validation saves time** - Large files are checked before upload to save bandwidth
+4. **Handle errors gracefully** - Always use try-except blocks
+5. **Use Path objects** - More reliable than string paths
+6. **Test with small files first** - Verify everything works before uploading large files
+7. **Custom size limits** - Set `max_file_size` for stricter limits in your application

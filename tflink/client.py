@@ -26,6 +26,7 @@ class TFLinkClient:
         auth_token: Optional authentication token for authenticated uploads
         base_url: API base URL (default: https://tmpfile.link)
         timeout: Request timeout in seconds (default: 300)
+        max_file_size: Maximum file size in bytes (default: 100MB)
 
     Example:
         # Anonymous upload
@@ -39,18 +40,23 @@ class TFLinkClient:
         print(result.download_link)
     """
 
+    # Default maximum file size: 100MB
+    DEFAULT_MAX_FILE_SIZE = 100 * 1024 * 1024
+
     def __init__(
         self,
         user_id: Optional[str] = None,
         auth_token: Optional[str] = None,
         base_url: str = "https://tmpfile.link",
-        timeout: int = 300
+        timeout: int = 300,
+        max_file_size: Optional[int] = None
     ):
         """Initialize the TFLink client"""
         self.user_id = user_id
         self.auth_token = auth_token
         self.base_url = base_url.rstrip('/')
         self.timeout = timeout
+        self.max_file_size = max_file_size if max_file_size is not None else self.DEFAULT_MAX_FILE_SIZE
         self.upload_url = f"{self.base_url}/api/upload"
 
         # Validate authentication parameters
@@ -92,6 +98,16 @@ class TFLinkClient:
 
         if not file_path.is_file():
             raise FileNotFoundError(f"Path is not a file: {file_path}")
+
+        # Check file size
+        file_size = file_path.stat().st_size
+        if file_size > self.max_file_size:
+            size_mb = file_size / 1024 / 1024
+            max_mb = self.max_file_size / 1024 / 1024
+            raise UploadError(
+                f"File too large: {size_mb:.2f}MB. "
+                f"Maximum allowed: {max_mb:.0f}MB"
+            )
 
         # Use custom filename or original filename
         upload_filename = filename or file_path.name

@@ -59,13 +59,19 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
     def test_upload_anonymous_success(
-        self, mock_file, mock_is_file, mock_exists, mock_post, mock_response_data
+        self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post, mock_response_data
     ):
         """Test successful anonymous upload"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size (1MB - within limit)
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         # Mock successful response
         mock_response = Mock()
@@ -89,13 +95,19 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
     def test_upload_authenticated_success(
-        self, mock_file, mock_is_file, mock_exists, mock_post, auth_mock_response_data
+        self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post, auth_mock_response_data
     ):
         """Test successful authenticated upload"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size (1MB - within limit)
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         # Mock successful response
         mock_response = Mock()
@@ -135,14 +147,105 @@ class TestTFLinkClientUpload:
         with pytest.raises(FileNotFoundError):
             client.upload('/tmp/')
 
+    @patch('tflink.client.Path.exists')
+    @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
+    def test_upload_file_too_large(self, mock_stat, mock_is_file, mock_exists):
+        """Test upload with file exceeding size limit"""
+        mock_exists.return_value = True
+        mock_is_file.return_value = True
+
+        # Mock file size: 150MB (exceeds 100MB limit)
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 150 * 1024 * 1024
+        mock_stat.return_value = mock_stat_result
+
+        client = TFLinkClient()
+        with pytest.raises(UploadError) as exc_info:
+            client.upload('/tmp/large_file.zip')
+
+        assert "File too large" in str(exc_info.value)
+        assert "150.00MB" in str(exc_info.value)
+        assert "100MB" in str(exc_info.value)
+
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
-    def test_upload_authentication_error(self, mock_file, mock_is_file, mock_exists, mock_post):
+    def test_upload_file_within_size_limit(
+        self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post, mock_response_data
+    ):
+        """Test upload with file within size limit"""
+        mock_exists.return_value = True
+        mock_is_file.return_value = True
+
+        # Mock file size: 50MB (within 100MB limit)
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 50 * 1024 * 1024
+        mock_stat.return_value = mock_stat_result
+
+        # Mock successful response
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.status_code = 200
+        mock_response.json.return_value = mock_response_data
+        mock_post.return_value = mock_response
+
+        client = TFLinkClient()
+        result = client.upload('/tmp/test.txt')
+
+        assert isinstance(result, UploadResult)
+        assert mock_post.called
+
+    @patch('tflink.client.Path.exists')
+    @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
+    def test_upload_custom_max_file_size(self, mock_stat, mock_is_file, mock_exists):
+        """Test upload with custom maximum file size"""
+        mock_exists.return_value = True
+        mock_is_file.return_value = True
+
+        # Mock file size: 50MB
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 50 * 1024 * 1024
+        mock_stat.return_value = mock_stat_result
+
+        # Client with 30MB limit
+        client = TFLinkClient(max_file_size=30 * 1024 * 1024)
+
+        with pytest.raises(UploadError) as exc_info:
+            client.upload('/tmp/file.zip')
+
+        assert "File too large" in str(exc_info.value)
+        assert "50.00MB" in str(exc_info.value)
+        assert "30MB" in str(exc_info.value)
+
+    def test_init_default_max_file_size(self):
+        """Test that default max file size is 100MB"""
+        client = TFLinkClient()
+        assert client.max_file_size == 100 * 1024 * 1024
+
+    def test_init_custom_max_file_size(self):
+        """Test initialization with custom max file size"""
+        custom_size = 50 * 1024 * 1024
+        client = TFLinkClient(max_file_size=custom_size)
+        assert client.max_file_size == custom_size
+
+    @patch('tflink.client.requests.post')
+    @patch('tflink.client.Path.exists')
+    @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
+    @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
+    def test_upload_authentication_error(self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post):
         """Test upload with authentication error"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         # Mock 401 response
         mock_response = Mock()
@@ -157,13 +260,19 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
-    def test_upload_file_too_large(self, mock_file, mock_is_file, mock_exists, mock_post):
-        """Test upload with file too large error"""
+    def test_upload_server_413_error(self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post):
+        """Test upload with server 413 error (file too large from server)"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
 
-        # Mock 413 response
+        # Mock file size (1MB - within client limit)
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
+
+        # Mock 413 response from server
         mock_response = Mock()
         mock_response.ok = False
         mock_response.status_code = 413
@@ -177,11 +286,17 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
-    def test_upload_server_error(self, mock_file, mock_is_file, mock_exists, mock_post):
+    def test_upload_server_error(self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post):
         """Test upload with server error"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         # Mock 500 response
         mock_response = Mock()
@@ -197,11 +312,17 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
-    def test_upload_timeout(self, mock_file, mock_is_file, mock_exists, mock_post):
+    def test_upload_timeout(self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post):
         """Test upload timeout"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         import requests
         mock_post.side_effect = requests.exceptions.Timeout()
@@ -214,11 +335,17 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
-    def test_upload_connection_error(self, mock_file, mock_is_file, mock_exists, mock_post):
+    def test_upload_connection_error(self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post):
         """Test upload connection error"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         import requests
         mock_post.side_effect = requests.exceptions.ConnectionError("Network error")
@@ -231,11 +358,17 @@ class TestTFLinkClientUpload:
     @patch('tflink.client.requests.post')
     @patch('tflink.client.Path.exists')
     @patch('tflink.client.Path.is_file')
+    @patch('tflink.client.Path.stat')
     @patch('builtins.open', new_callable=mock_open, read_data=b'test content')
-    def test_upload_custom_filename(self, mock_file, mock_is_file, mock_exists, mock_post, mock_response_data):
+    def test_upload_custom_filename(self, mock_file, mock_stat, mock_is_file, mock_exists, mock_post, mock_response_data):
         """Test upload with custom filename"""
         mock_exists.return_value = True
         mock_is_file.return_value = True
+
+        # Mock file size
+        mock_stat_result = Mock()
+        mock_stat_result.st_size = 1024 * 1024
+        mock_stat.return_value = mock_stat_result
 
         mock_response = Mock()
         mock_response.ok = True

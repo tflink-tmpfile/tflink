@@ -13,7 +13,8 @@ TFLinkClient(
     user_id: str | None = None,
     auth_token: str | None = None,
     base_url: str = "https://tmpfile.link",
-    timeout: int = 300
+    timeout: int = 300,
+    max_file_size: int | None = None
 )
 ```
 
@@ -23,6 +24,7 @@ TFLinkClient(
 - `auth_token` (str, optional): Authentication token for authenticated uploads. Default: `None`
 - `base_url` (str, optional): API base URL. Default: `"https://tmpfile.link"`
 - `timeout` (int, optional): Request timeout in seconds. Default: `300` (5 minutes)
+- `max_file_size` (int, optional): Maximum file size in bytes. Default: `104857600` (100MB)
 
 **Example:**
 
@@ -41,7 +43,8 @@ client = TFLinkClient(
 # Custom configuration
 client = TFLinkClient(
     base_url='https://custom.tmpfile.link',
-    timeout=600  # 10 minutes
+    timeout=600,  # 10 minutes
+    max_file_size=50 * 1024 * 1024  # 50MB limit
 )
 ```
 
@@ -70,7 +73,7 @@ upload(
 **Raises:**
 
 - `FileNotFoundError`: File does not exist or is not a file
-- `UploadError`: Upload failed (server error, invalid response)
+- `UploadError`: Upload failed (file too large, server error, invalid response)
 - `AuthenticationError`: Authentication failed (invalid credentials)
 - `NetworkError`: Network request failed (connection error, timeout)
 
