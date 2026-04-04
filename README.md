@@ -57,6 +57,16 @@ print(f"Size: {result.size:,} bytes")
 print(f"Link: {result.download_link}")
 ```
 
+### Retention Model
+
+Anonymous uploads are stored under the `public/` prefix and are configured to expire after 7 days.
+
+- Cleanup is enforced by a Cloudflare R2 lifecycle rule on `public/`
+- The service does **not** use a Cron Trigger for anonymous file deletion
+- Lifecycle expiration is eventual, so a file may remain visible for a short time after crossing the 7-day mark
+
+Authenticated uploads are stored under `users/{user_id}/...` and are not covered by the anonymous 7-day cleanup rule.
+
 ### Authenticated Upload
 
 ```python

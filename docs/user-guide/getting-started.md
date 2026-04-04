@@ -16,6 +16,8 @@ pip install tflink
 
 Files uploaded anonymously are automatically deleted after 7 days.
 
+The current cleanup mechanism is a Cloudflare R2 lifecycle rule on the `public/` prefix, not a Cron Trigger. Because lifecycle expiration is eventual, a file may still be visible for a short time after it passes the 7-day threshold.
+
 ```python
 from tflink import TFLinkClient
 
@@ -34,6 +36,8 @@ That's it! You'll get a download URL that you can share with anyone.
 ### Authenticated Upload
 
 If you have a tmpfile.link account, you can upload files that won't be automatically deleted.
+
+Authenticated uploads are stored outside the anonymous `public/` retention path and are not covered by the 7-day lifecycle rule.
 
 ```python
 from tflink import TFLinkClient
